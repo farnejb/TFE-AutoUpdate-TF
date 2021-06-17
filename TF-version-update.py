@@ -5,7 +5,9 @@ import os
 
 #get env variable
 admin_token = os.getenv('TFE_TOKEN')
+tfe_url = os.getenv('TFE_URL')
 print('TFE_TOKEN =', admin_token)
+print('TFE_URL =', tfe_url)
 #get most current version number from checkpoint
 response = requests.get('https://checkpoint-api.hashicorp.com/v1/check/terraform')
 
@@ -15,7 +17,7 @@ current_version = json_data.get('current_version')
 
 #query TFE for a list of available versions
 headers = {'Authorization': 'Bearer ' + admin_token, 'Content-Type': 'application/vnd.api+json'}
-response2 = requests.get('https://tfe-demo.is.very-serious.business/api/v2/admin/terraform-versions', headers=headers)
+response2 = requests.get(tfe_url + '/api/v2/admin/terraform-versions', headers=headers)
 
 version_data = response2.json() if response2 and response2.status_code == 200 else None
 
@@ -57,7 +59,7 @@ else:
 
     http = urllib3.PoolManager()
 #POST to TFE TF Versions API; can only be done once (and not deleted) if flagged as "official"
-    r = http.request('POST', 'https://tfe-demo.is.very-serious.business/api/v2/admin/terraform-versions', 
+    r = http.request('POST', tfe_url + '/api/v2/admin/terraform-versions', 
         headers={'Authorization':'Bearer ' + admin_token, 'Content-Type': 'application/vnd.api+json'},
         body=encoded_body)
 
