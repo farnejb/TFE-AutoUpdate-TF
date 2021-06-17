@@ -15,7 +15,7 @@ current_version = json_data.get('current_version')
 
 #query TFE for a list of available versions
 headers = {'Authorization': 'Bearer ' + admin_token, 'Content-Type': 'application/vnd.api+json'}
-response2 = requests.get('https://<your-server>/api/v2/admin/terraform-versions', headers=headers)
+response2 = requests.get('https://tfe-demo.is.very-serious.business/api/v2/admin/terraform-versions', headers=headers)
 
 version_data = response2.json() if response2 and response2.status_code == 200 else None
 
@@ -32,7 +32,7 @@ else:
     url = "https://releases.hashicorp.com/terraform/{0}/terraform_{0}_SHA256SUMS".format(current_version)
 #grab sha256 hash from releases binary; will need to change character range for versions other than amd64
     content=requests.get(url)
-    sha256 = content.text[496:560]
+    sha256 = content.text[491:555]
     print(sha256)
 #update download URL and create JSON payload    
     download_url = "https://releases.hashicorp.com/terraform/{0}/terraform_{0}_linux_amd64.zip".format(current_version)
@@ -44,7 +44,7 @@ else:
                 "version": current_version,
                 "url": download_url,
                 "sha": sha256,
-                "official": True,
+                "official": False, #set to false for testing
                 "enabled": True,
                 "beta": False
             }
@@ -57,8 +57,9 @@ else:
 
     http = urllib3.PoolManager()
 #POST to TFE TF Versions API; can only be done once (and not deleted) if flagged as "official"
-    r = http.request('POST', 'https://<your-server>/api/v2/admin/terraform-versions', 
-        headers={'Authorization':'Bearer <token>', 'Content-Type': 'application/vnd.api+json'},
+    r = http.request('POST', 'https://tfe-demo.is.very-serious.business/api/v2/admin/terraform-versions', 
+        headers={'Authorization':'Bearer ' + admin_token, 'Content-Type': 'application/vnd.api+json'},
         body=encoded_body)
 
     print(r.status)
+    print(headers)
